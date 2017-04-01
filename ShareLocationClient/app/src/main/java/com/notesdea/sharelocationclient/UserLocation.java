@@ -7,6 +7,22 @@ import com.baidu.mapapi.model.LatLng;
  */
 
 public class UserLocation {
-    public int sessionId;
-    public LatLng latLng;
+    private long sessionId;
+    private LatLng latLng;
+
+    public long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public void setLatLng(double lat, double lng) {
+        latLng = new LatLng(lat, lng);
+    }
+
+    public LatLng getLatLng() {
+        return latLng;
+    }
 }

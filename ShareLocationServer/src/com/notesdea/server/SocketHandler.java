@@ -1,5 +1,6 @@
 package com.notesdea.server;
 
+import com.google.gson.Gson;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
@@ -10,14 +11,13 @@ import java.util.Set;
  * Created by notes on 2017/2/24.
  */
 
-//todo 需要用到Gson 和 Json，还有个用户位置的类，服务端如何使用Gson类？
-    //todo 看看客户端代码
 public class SocketHandler extends IoHandlerAdapter {
     private Set<IoSession> sessions = new HashSet<>();
 
     @Override
     public void sessionCreated(IoSession session) throws Exception {
         sessions.add(session);
+        System.out.println("sessionCreated executed");
         for (IoSession ioSession : sessions) {
             if (ioSession != session) {
                 ioSession.write("@create session");
@@ -41,18 +41,25 @@ public class SocketHandler extends IoHandlerAdapter {
             return;
         }
 
+        System.out.println(msg);
+
         for (IoSession ioSession : sessions) {
             if (ioSession != session) {
-                //todo 把已格式化的数据发送到其它会话上
-                String data = msg/*reformatData(msg, )*/;
+                String data = reformatData(msg, ioSession.getId());
                 session.write(data);
             }
         }
     }
 
-    //??sessionId干嘛用？ sessionId用来告诉别人是哪个客户传来的信息。
     private String reformatData(String data, long sessionId) {
-        //todo
-        return null;
+        String marker = "@location";
+        if (data.startsWith(marker)) {
+            data = data.replace(marker, "");
+            System.out.println(data);
+        }
+        UserLocation userLocation = new Gson().fromJson(data, UserLocation.class);
+        userLocation.setSessionId(sessionId);
+
+        return marker + data;
     }
 }
